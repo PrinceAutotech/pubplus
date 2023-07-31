@@ -72,10 +72,10 @@ class _MultipleImageSelectorState extends State<MultipleImageSelector> {
               child: ElevatedButton(
                 onPressed: () {
                   _formKey.currentState?.save();
-                  log('${data.length}');
-                  for (var dataItem in data) {
-                    log('$dataItem');
-                  }
+                  // log('${data.length}');
+                  // for (var dataItem in data) {
+                  //   log('$dataItem');
+                  // }
                   screenshotController
                       .captureFromLongWidget(
                     InheritedTheme.captureAll(
