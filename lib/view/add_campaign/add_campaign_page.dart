@@ -50,68 +50,67 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                       maxCrossAxisExtent: 380.0,
                       crossAxisSpacing: 4.0,
                       mainAxisSpacing: 4.0,
-                      mainAxisExtent: 490.0,
+                      mainAxisExtent: 528.0,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       final Campaign campaign = _campaigns[index];
-                      return SizedBox(
-                        height: 3,
-                        width: 3,
-                        child: Card(
-                          child: ColoredBox(
-                            color: Colors.blue.shade50,
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Enter the Title',
-                                    ),
-                                    onSaved: (value) {
-                                      campaign.title = value;
-                                    },
+                      return Card(
+                        child: ColoredBox(
+                          color: Colors.blue.shade50,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Enter the Title',
                                   ),
+                                  maxLength: 100,
+                                  onSaved: (value) {
+                                    campaign.title = value;
+                                  },
                                 ),
-                                if (kIsWeb)
-                                  Image.network(
-                                    campaign.imageFile.path,
-                                    height: 250,
-                                    width: 250,
-                                  )
-                                else
-                                  Image.file(
-                                    campaign.imageFile,
-                                    height: 250,
-                                    width: 250,
-                                  ),
-                                Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Enter the Heading',
-                                    ),
-                                    onSaved: (value) {
-                                      campaign.heading = value;
-                                    },
-                                  ),
+                              ),
+                              if (kIsWeb)
+                                Image.network(
+                                  campaign.imageFile.path,
+                                  height: 250,
+                                  width: 250,
+                                )
+                              else
+                                Image.file(
+                                  campaign.imageFile,
+                                  height: 250,
+                                  width: 250,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Enter the Description',
-                                    ),
-                                    onSaved: (value) {
-                                      campaign.desc = value;
-                                    },
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Enter the Heading',
                                   ),
+                                  maxLength: 100,
+                                  onSaved: (value) {
+                                    campaign.heading = value;
+                                  },
                                 ),
-                              ],
-                            ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Enter the Description',
+                                  ),
+                                  maxLength: 100,
+                                  onSaved: (value) {
+                                    campaign.desc = value;
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -133,7 +132,8 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                           await _screenshotController.captureFromLongWidget(
                         InheritedTheme.captureAll(
                           context,
-                          Material(child: buildImage()),
+                          // Material(child: ImageCard(campaigns: _campaigns)),
+                          Material(child: buildImage1(_campaigns)),
                         ),
                         delay: const Duration(milliseconds: 1000),
                         context: context,
@@ -165,157 +165,130 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
     }
   }
 
-  Widget buildImage() => Row(
-        children: [
-          for (final campaign in _campaigns)
-            Card(
-              child: Container(
-                width: 400,
-                color: Colors.blue.shade50,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const SizedBox(height: 5),
-                        const Padding(
-                          padding: EdgeInsets.all(2.0),
-                          child: AutoSizeText(
-                            'Title :',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+  Widget buildImage1(List<Campaign> campaigns) => SizedBox(
+        width: 500 * 3,
+        child: Wrap(
+          runSpacing: 4.0,
+          spacing: 4.0,
+          children: [
+            for (final campaign in campaigns)
+              Card(
+                child: Container(
+                  width: 488,
+                  height: 490,
+                  color: Colors.blue.shade50,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 5),
+                            const Padding(
+                              padding: EdgeInsets.all(2.0),
+                              child: AutoSizeText(
+                                'Title :',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 300,
-                          child: AutoSizeText(
-                            '${campaign.title}',
-                            maxLines: 3,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: kIsWeb
-                          ? Image.network(
-                              campaign.imageFile.path,
-                              height: 360,
-                              width: 360,
-                            )
-                          : Image.file(
-                              campaign.imageFile,
-                              height: 360,
-                              width: 360,
+                            Expanded(
+                              child: AutoSizeText(
+                                '${campaign.title}',
+                                maxLines: 3,
+                                style: const TextStyle(fontSize: 16),
+                              ),
                             ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(2.0),
-                          child: Text(
-                            'Heading :',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Expanded(
+                        flex: 5,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: kIsWeb
+                                ? Image.network(
+                                    campaign.imageFile.path,
+                                    fit: BoxFit.fitHeight,
+                                    // height: 360,
+                                    // width: 360,
+                                  )
+                                : Image.file(
+                                    campaign.imageFile,
+                                    fit: BoxFit.fitHeight,
+                                    // height: 360,
+                                    // width: 360,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(2.0),
+                                child: Text(
+                                  'Heading :',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: AutoSizeText(
+                                  '${campaign.heading}',
+                                  maxLines: 3,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(2.0),
+                              child: Text(
+                                'Description :',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 300,
-                          child: AutoSizeText(
-                            '${campaign.heading}',
-                            maxLines: 3,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(2.0),
-                          child: Text(
-                            'Description :',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                            Expanded(
+                              child: AutoSizeText(
+                                '${campaign.desc}',
+                                maxLines: 3,
+                                style: const TextStyle(fontSize: 16),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        SizedBox(
-                          width: 300.0,
-                          child: AutoSizeText(
-                            '${campaign.desc}',
-                            maxLines: 3,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
-      );
-
-  Widget buildImage1() => GridView.builder(
-        shrinkWrap: true,
-        itemCount: _campaigns.length,
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 380.0,
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 4.0,
-          mainAxisExtent: 490.0,
-        ),
-        itemBuilder: (BuildContext context, int index) => Card(
-          child: Container(
-            width: 360,
-            color: Colors.blue.shade50,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    '${_campaigns[index].title}',
-                    maxLines: 3,
-                  ),
-                ),
-                if (kIsWeb)
-                  Image.network(
-                    _campaigns[index].imageFile.path,
-                    height: 350,
-                    width: 350,
-                  )
-                else
-                  Image.file(
-                    _campaigns[index].imageFile,
-                    height: 350,
-                    width: 350,
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(7.0),
-                  child: Text(
-                    '${_campaigns[index].heading}',
-                    maxLines: 3,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(7.0),
-                  child: Text(
-                    '${_campaigns[index].desc}',
-                    maxLines: 3,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
+          // gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          //   maxCrossAxisExtent: 380.0,
+          //   crossAxisSpacing: 4.0,
+          //   mainAxisSpacing: 4.0,
+          //   mainAxisExtent: 490.0,
+          // ),
         ),
       );
 
