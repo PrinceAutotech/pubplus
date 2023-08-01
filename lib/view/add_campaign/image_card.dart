@@ -1,13 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_emoji/flutter_emoji.dart';
 
 import '../../model/campaign.dart';
 
 class ImageCard extends StatelessWidget {
   final List<Campaign> campaigns;
+  EmojiParser parser = EmojiParser();
 
-  const ImageCard({super.key, required this.campaigns});
+  ImageCard({super.key, required this.campaigns});
 
   @override
   Widget build(BuildContext context) => Row(
@@ -23,7 +25,7 @@ class ImageCard extends StatelessWidget {
                       children: [
                         const SizedBox(height: 5),
                         const Padding(
-                          padding: EdgeInsets.all(2.0),
+                          padding: EdgeInsets.all(5.0),
                           child: AutoSizeText(
                             'Title :',
                             style: TextStyle(
@@ -34,8 +36,8 @@ class ImageCard extends StatelessWidget {
                         ),
                         SizedBox(
                           width: 300,
-                          child: AutoSizeText(
-                            '${campaign.title}',
+                          child: Text(
+                            parser.emojify('${campaign.title}'),
                             maxLines: 3,
                             style: const TextStyle(fontSize: 16),
                           ),
@@ -61,7 +63,7 @@ class ImageCard extends StatelessWidget {
                     Row(
                       children: [
                         const Padding(
-                          padding: EdgeInsets.all(2.0),
+                          padding: EdgeInsets.all(5.0),
                           child: Text(
                             'Heading :',
                             style: TextStyle(
@@ -73,7 +75,7 @@ class ImageCard extends StatelessWidget {
                         SizedBox(
                           width: 300,
                           child: AutoSizeText(
-                            '${campaign.heading}',
+                            parser.emojify('${campaign.heading}'),
                             maxLines: 3,
                             style: const TextStyle(fontSize: 16),
                           ),
@@ -84,7 +86,7 @@ class ImageCard extends StatelessWidget {
                     Row(
                       children: [
                         const Padding(
-                          padding: EdgeInsets.all(2.0),
+                          padding: EdgeInsets.all(5.0),
                           child: Text(
                             'Description :',
                             style: TextStyle(
@@ -96,7 +98,7 @@ class ImageCard extends StatelessWidget {
                         SizedBox(
                           width: 300.0,
                           child: AutoSizeText(
-                            '${campaign.desc}',
+                            parser.emojify('${campaign.desc}'),
                             maxLines: 3,
                             style: const TextStyle(fontSize: 16),
                           ),

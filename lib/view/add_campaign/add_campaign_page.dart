@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
 import '../../model/campaign.dart';
@@ -19,6 +20,7 @@ class AddCampaignPage extends StatefulWidget {
 class _AddCampaignPageState extends State<AddCampaignPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
+  EmojiParser parser = EmojiParser();
   final ScreenshotController _screenshotController = ScreenshotController();
   final List<Campaign> _campaigns = [];
   final Save _save = Save();
@@ -65,9 +67,9 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                     border: OutlineInputBorder(),
                                     hintText: 'Enter the Title',
                                   ),
-                                  maxLength: 100,
+                                  maxLength: 150,
                                   onSaved: (value) {
-                                    campaign.title = value;
+                                    campaign.title = parser.emojify('$value');
                                   },
                                 ),
                               ),
@@ -90,7 +92,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                     border: OutlineInputBorder(),
                                     hintText: 'Enter the Heading',
                                   ),
-                                  maxLength: 100,
+                                  maxLength: 150,
                                   onSaved: (value) {
                                     campaign.heading = value;
                                   },
@@ -103,7 +105,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                     border: OutlineInputBorder(),
                                     hintText: 'Enter the Description',
                                   ),
-                                  maxLength: 100,
+                                  maxLength: 150,
                                   onSaved: (value) {
                                     campaign.desc = value;
                                   },

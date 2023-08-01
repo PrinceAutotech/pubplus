@@ -45,6 +45,8 @@ dependencies:
   android_path_provider: ^0.3.0
   path_provider: ^2.0.15
   auto_size_text: ^3.0.0
+  flutter_emoji: ^2.4.0
+  emojis: ^0.9.9
 
 dev_dependencies:
   flutter_test:

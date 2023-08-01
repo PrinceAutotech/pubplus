@@ -17,9 +17,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController =
-      TextEditingController(text: 'prince@gmail.com');
+      TextEditingController();
   TextEditingController passwordController =
-      TextEditingController(text: 'prince@121');
+      TextEditingController();
 
   Future<void> _login() async {
     String email = emailController.text.trim();
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const SizedBox(height: 10),
               const Text(
-                'SignIn',
+                'Sign In',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
