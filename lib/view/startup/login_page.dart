@@ -17,9 +17,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController =
-      TextEditingController();
+      TextEditingController(text: 'admin@gmail.com');
   TextEditingController passwordController =
-      TextEditingController();
+      TextEditingController(text: 'admin@121');
 
   Future<void> _login() async {
     String email = emailController.text.trim();

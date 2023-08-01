@@ -11,6 +11,8 @@ class ImageCard extends StatelessWidget {
 
   ImageCard({super.key, required this.campaigns});
 
+  //Future<void> emoji() async => await parser.initServerData();
+
   @override
   Widget build(BuildContext context) => Row(
         children: [

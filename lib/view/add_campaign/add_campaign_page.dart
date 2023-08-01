@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -94,7 +95,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                   ),
                                   maxLength: 150,
                                   onSaved: (value) {
-                                    campaign.heading = value;
+                                    campaign.heading = parser.emojify('$value');
                                   },
                                 ),
                               ),
@@ -107,7 +108,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                   ),
                                   maxLength: 150,
                                   onSaved: (value) {
-                                    campaign.desc = value;
+                                    campaign.desc = parser.emojify('$value');
                                   },
                                 ),
                               ),
@@ -246,7 +247,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                               ),
                               Expanded(
                                 child: AutoSizeText(
-                                  '${campaign.heading}',
+                                  parser.emojify('${campaign.heading}'),
                                   maxLines: 3,
                                   style: const TextStyle(fontSize: 16),
                                 ),
@@ -271,7 +272,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                             ),
                             Expanded(
                               child: AutoSizeText(
-                                '${campaign.desc}',
+                                parser.emojify('${campaign.desc}'),
                                 maxLines: 3,
                                 style: const TextStyle(fontSize: 16),
                               ),
