@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,6 +26,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Multiple Images Select'),
         ),
         body: Center(
@@ -33,11 +35,8 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
             children: [
               const SizedBox(height: 20),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
                 onPressed: getImages,
-                child: const Text('Select Image from Gallery and Camera'),
+                child: const Text('Select Image from Gallery'),
               ),
               Expanded(
                 child: Form(
@@ -299,11 +298,15 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
         context: context,
         builder: (_) => Scaffold(
           appBar: AppBar(
-            title: const Text('Captured widget screenshot'),
+            title: const Text('Captured screenshot'),
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               _save.saveFile(capturedImage, 'filename.png');
+              Navigator.popUntil(context, (route) => route.isFirst);
+              unawaited(Navigator.pushReplacement(context,
+                  CupertinoPageRoute(builder: (_) => const AddCampaignPage())));
             },
             child: const Icon(Icons.download),
           ),

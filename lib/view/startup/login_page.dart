@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 8.0,
                     textStyle: const TextStyle(color: Colors.white),
                   ),
-                  child: const Text('Sing In'),
+                  child: const Text('Sign In'),
                 ),
               ),
             ],
