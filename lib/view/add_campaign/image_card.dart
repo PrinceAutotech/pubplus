@@ -11,23 +11,31 @@ class ImageCard extends StatelessWidget {
 
   ImageCard({super.key, required this.campaigns});
 
-  //Future<void> emoji() async => await parser.initServerData();
+
 
   @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          for (final campaign in campaigns)
-            Card(
-              child: Container(
-                width: 400,
-                color: Colors.blue.shade50,
-                child: Column(
-                  children: [
-                    Row(
+  Widget build(BuildContext context) => SizedBox(
+    width: 500 * 3,
+    child: Wrap(
+      runSpacing: 4.0,
+      spacing: 4.0,
+      children: [
+        for (final campaign in campaigns)
+          Card(
+            color: const Color(0xffF7F2FA),
+            child: SizedBox(
+              width: 488,
+              height: 490,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 5),
                         const Padding(
-                          padding: EdgeInsets.all(5.0),
+                          padding: EdgeInsets.symmetric(vertical: 5,horizontal: 5),
                           child: AutoSizeText(
                             'Title :',
                             style: TextStyle(
@@ -36,59 +44,71 @@ class ImageCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          width: 300,
-                          child: Text(
-                            parser.emojify('${campaign.title}'),
-                            maxLines: 3,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: kIsWeb
-                          ? Image.network(
-                              campaign.imageFile.path,
-                              height: 360,
-                              width: 360,
-                            )
-                          : Image.file(
-                              campaign.imageFile,
-                              height: 360,
-                              width: 360,
-                            ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Text(
-                            'Heading :',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 300,
+                        Expanded(
                           child: AutoSizeText(
-                            parser.emojify('${campaign.heading}'),
+                            '${campaign.title}',
                             maxLines: 3,
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5),
-                    Row(
+                  ),
+                  const SizedBox(height: 2),
+                  Expanded(
+                    flex: 5,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: kIsWeb
+                            ? Image.network(
+                          campaign.imageFile.path,
+                          fit: BoxFit.fitHeight,
+                          // height: 360,
+                          // width: 360,
+                        )
+                            : Image.file(
+                          campaign.imageFile,
+                          fit: BoxFit.fitHeight,
+                          // height: 360,
+                          // width: 360,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(2.0),
+                            child: Text(
+                              'Heading :',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: AutoSizeText(
+                              parser.emojify('${campaign.heading}'),
+                              maxLines: 3,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Padding(
-                          padding: EdgeInsets.all(5.0),
+                          padding: EdgeInsets.all(2.0),
                           child: Text(
                             'Description :',
                             style: TextStyle(
@@ -97,8 +117,7 @@ class ImageCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          width: 300.0,
+                        Expanded(
                           child: AutoSizeText(
                             parser.emojify('${campaign.desc}'),
                             maxLines: 3,
@@ -107,10 +126,18 @@ class ImageCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-        ],
-      );
+          ),
+      ],
+      // gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      //   maxCrossAxisExtent: 380.0,
+      //   crossAxisSpacing: 4.0,
+      //   mainAxisSpacing: 4.0,
+      //   mainAxisExtent: 490.0,
+      // ),
+    ),
+  );
 }

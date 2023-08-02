@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
 import '../../model/campaign.dart';
 import '../../service/save/save.dart';
+import 'image_card.dart';
 
 class AddCampaignPage extends StatefulWidget {
   const AddCampaignPage({super.key});
@@ -24,6 +26,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
   final ScreenshotController _screenshotController = ScreenshotController();
   final List<Campaign> _campaigns = [];
   final Save _save = Save();
+  User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -40,6 +43,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                 onPressed: getImages,
                 child: const Text('Select Image from Gallery'),
               ),
+              const SizedBox(height: 20),
               Expanded(
                 child: Form(
                   key: _formKey,
@@ -51,13 +55,14 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                       maxCrossAxisExtent: 380.0,
                       crossAxisSpacing: 4.0,
                       mainAxisSpacing: 4.0,
-                      mainAxisExtent: 570.0,
+                      mainAxisExtent: 577.0,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       final Campaign campaign = _campaigns[index];
                       return Card(
+                        elevation: 10,
                         child: ColoredBox(
-                          color: Colors.blue.shade50,
+                          color: const Color(0xffF7F2FA),
                           child: Column(
                             children: [
                               Padding(
@@ -75,10 +80,13 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                 padding: const EdgeInsets.all(5.0),
                                 child: TextFormField(
                                   decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(12)),
+                                    ),
                                     hintText: 'Enter the Title',
                                   ),
-                                  maxLength: 150,
+                                  maxLength: 600,
                                   onSaved: (value) {
                                     campaign.title = parser.emojify('$value');
                                   },
@@ -96,11 +104,17 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                   height: 250,
                                   width: 250,
                                 ),
+                              const SizedBox(
+                                height: 5,
+                              ),
                               Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: TextFormField(
                                   decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(12)),
+                                    ),
                                     hintText: 'Enter the Heading',
                                   ),
                                   maxLength: 150,
@@ -113,10 +127,13 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                 padding: const EdgeInsets.all(5.0),
                                 child: TextFormField(
                                   decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(12)),
+                                    ),
                                     hintText: 'Enter the Description',
                                   ),
-                                  maxLength: 150,
+                                  maxLength: 255,
                                   onSaved: (value) {
                                     campaign.desc = parser.emojify('$value');
                                   },
@@ -133,27 +150,57 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
               if (_campaigns.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 18.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 12.0,
-                      textStyle: const TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () async {
-                      _formKey.currentState?.save();
-                      var value =
-                          await _screenshotController.captureFromLongWidget(
-                        InheritedTheme.captureAll(
-                          context,
-                          // Material(child: ImageCard(campaigns: _campaigns)),
-                          Material(child: buildImage1(_campaigns)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // ElevatedButton(
+                      //   style: ElevatedButton.styleFrom(
+                      //     elevation: 12.0,
+                      //     textStyle: const TextStyle(color: Colors.white),
+                      //   ),
+                      //   onPressed: () {
+                      //     if (currentUser != null) {
+                      //       if (kDebugMode) {
+                      //         print(currentUser!.email);
+                      //       }
+                      //     }
+                      //   },
+                      //   child: const Text('Upload'),
+                      // ),
+                      // const SizedBox(
+                      //   width: 15,
+                      // ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 12.0,
+                          textStyle: const TextStyle(color: Colors.white),
                         ),
-                        delay: const Duration(milliseconds: 1000),
-                        context: context,
-                      );
-                      if (!mounted) return;
-                      unawaited(showCapturedWidget(context, value));
-                    },
-                    child: const Text('Download'),
+                        onPressed: () async {
+                          _formKey.currentState?.save();
+                          var value =
+                              await _screenshotController.captureFromLongWidget(
+                            InheritedTheme.captureAll(
+                              context,
+                              // Material(child: ImageCard(campaigns: _campaigns)),
+                              Material(
+                                  child: ImageCard(
+                                campaigns: _campaigns,
+                              )),
+                            ),
+                            delay: const Duration(milliseconds: 1000),
+                            context: context,
+                          );
+                          if (!mounted) return;
+                          unawaited(showCapturedWidget(context, value));
+                          if (currentUser != null) {
+                            if (kDebugMode) {
+                              print(currentUser!.email);
+                            }
+                          }
+                        },
+                        child: const Text('Download'),
+                      ),
+                    ],
                   ),
                 ),
             ],

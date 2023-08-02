@@ -47,6 +47,8 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_emoji: ^2.4.0
   emojis: ^0.9.9
+  firebase_storage: ^11.2.5
+  cloud_firestore: ^4.8.4
 
 dev_dependencies:
   flutter_test:
