@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -52,7 +51,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                       maxCrossAxisExtent: 380.0,
                       crossAxisSpacing: 4.0,
                       mainAxisSpacing: 4.0,
-                      mainAxisExtent: 528.0,
+                      mainAxisExtent: 570.0,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       final Campaign campaign = _campaigns[index];
@@ -61,6 +60,17 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                           color: Colors.blue.shade50,
                           child: Column(
                             children: [
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _campaigns.remove(_campaigns[index]);
+                                    });
+                                  },
+                                  child: const Text('Remove'),
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: TextFormField(
