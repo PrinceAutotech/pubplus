@@ -51,6 +51,7 @@ class DefaultFirebaseOptions {
     appId: '1:682377629243:web:167875a91ac43d3e08161e',
     messagingSenderId: '682377629243',
     projectId: 'pubplus2-2ca9a',
+    databaseURL: 'https://pubplus2-2ca9a-default-rtdb.firebaseio.com',
     authDomain: 'pubplus2-2ca9a.firebaseapp.com',
     storageBucket: 'pubplus2-2ca9a.appspot.com',
     measurementId: 'G-808SWEVQ9W',

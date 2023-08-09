@@ -1,10 +1,10 @@
-import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class Campaign {
   String? title;
   String? heading;
   String? desc;
-  final File imageFile;
+  final XFile imageFile;
 
   Campaign({
     this.title,

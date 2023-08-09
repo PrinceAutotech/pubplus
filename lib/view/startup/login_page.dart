@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../admin/dashboard.dart';
 
 import '../add_campaign/add_campaign_page.dart';
 
@@ -17,9 +18,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController =
-      TextEditingController(text: '');
+      TextEditingController(text: 'admin@gmail.com');
   TextEditingController passwordController =
-      TextEditingController(text: '');
+      TextEditingController(text: 'admin@121');
 
   Future<void> _login() async {
     String email = emailController.text.trim();
@@ -37,9 +38,10 @@ class _LoginPageState extends State<LoginPage> {
           if (!mounted) return;
           Navigator.popUntil(context, (route) => route.isFirst);
           unawaited(Navigator.pushReplacement(context,
-              CupertinoPageRoute(builder: (_) => const AddCampaignPage())));
+              CupertinoPageRoute(builder: (_) => const Dashboard())));
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Login successfully !!')));
+
         }
       } on FirebaseAuthException catch (ex) {
         ScaffoldMessenger.of(context)

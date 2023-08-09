@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -8,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
+import '../../admin/dashboard.dart';
+import '../../database/storage_database.dart';
 import '../../model/campaign.dart';
+import '../../model/post_campaign.dart';
 import '../../service/save/save.dart';
 import 'image_card.dart';
 
@@ -23,16 +25,47 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   EmojiParser parser = EmojiParser();
+  TextEditingController articleController = TextEditingController();
+  TextEditingController articleNameController = TextEditingController();
   final ScreenshotController _screenshotController = ScreenshotController();
   final List<Campaign> _campaigns = [];
+  final List<PostCampaign> _postCampaign = [];
   final Save _save = Save();
   User? currentUser = FirebaseAuth.instance.currentUser;
+  String articleLink = 'nbn';
+  String articleName = 'jk';
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Multiple Images Select'),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Home'),
+                onTap: () {
+                  unawaited(Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (_) => const Dashboard())));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.storage),
+                title: const Text('Add Campaigns'),
+                onTap: () {
+                  unawaited(Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (_) => const AddCampaignPage())));
+                },
+              )
+            ],
+          ),
         ),
         body: Center(
           child: Column(
@@ -42,6 +75,38 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
               ElevatedButton(
                 onPressed: getImages,
                 child: const Text('Select Image from Gallery'),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: 400,
+                child: TextField(
+                  controller: articleNameController,
+                  onChanged: (value) {
+                    articleName = value;
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    hintText: 'Enter the Article Name',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: 400,
+                child: TextField(
+                  controller: articleController,
+                  onChanged: (value) {
+                    articleLink = value;
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    hintText: 'Enter the Article Link',
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               Expanded(
@@ -100,7 +165,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                                 )
                               else
                                 Image.file(
-                                  campaign.imageFile,
+                                  File(campaign.imageFile.path),
                                   height: 250,
                                   width: 250,
                                 ),
@@ -153,23 +218,6 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // ElevatedButton(
-                      //   style: ElevatedButton.styleFrom(
-                      //     elevation: 12.0,
-                      //     textStyle: const TextStyle(color: Colors.white),
-                      //   ),
-                      //   onPressed: () {
-                      //     if (currentUser != null) {
-                      //       if (kDebugMode) {
-                      //         print(currentUser!.email);
-                      //       }
-                      //     }
-                      //   },
-                      //   child: const Text('Upload'),
-                      // ),
-                      // const SizedBox(
-                      //   width: 15,
-                      // ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           elevation: 12.0,
@@ -183,20 +231,19 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                               context,
                               // Material(child: ImageCard(campaigns: _campaigns)),
                               Material(
-                                  child: ImageCard(
-                                campaigns: _campaigns,
-                              )),
+                                child: ImageCard(
+                                  campaigns: _campaigns,
+                                ),
+                              ),
                             ),
                             delay: const Duration(milliseconds: 1000),
                             context: context,
                           );
                           if (!mounted) return;
                           unawaited(showCapturedWidget(context, value));
-                          if (currentUser != null) {
-                            if (kDebugMode) {
-                              print(currentUser!.email);
-                            }
-                          }
+
+                          await StorageDatabase().writeData(_campaigns,
+                              currentUser!.uid, articleName, _postCampaign);
                         },
                         child: const Text('Download'),
                       ),
@@ -214,7 +261,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
     if (pickedFile.isNotEmpty) {
       setState(() {
         for (final xFile in pickedFile) {
-          _campaigns.add(Campaign(imageFile: File(xFile.path)));
+          _campaigns.add(Campaign(imageFile: xFile));
         }
       });
     } else {
@@ -223,133 +270,6 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
           .showSnackBar(const SnackBar(content: Text('Nothing is selected')));
     }
   }
-
-  Widget buildImage1(List<Campaign> campaigns) => SizedBox(
-        width: 500 * 3,
-        child: Wrap(
-          runSpacing: 4.0,
-          spacing: 4.0,
-          children: [
-            for (final campaign in campaigns)
-              Card(
-                child: Container(
-                  width: 488,
-                  height: 490,
-                  color: Colors.blue.shade50,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 5),
-                            const Padding(
-                              padding: EdgeInsets.all(2.0),
-                              child: AutoSizeText(
-                                'Title :',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: AutoSizeText(
-                                '${campaign.title}',
-                                maxLines: 3,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Expanded(
-                        flex: 5,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: kIsWeb
-                                ? Image.network(
-                                    campaign.imageFile.path,
-                                    fit: BoxFit.fitHeight,
-                                    // height: 360,
-                                    // width: 360,
-                                  )
-                                : Image.file(
-                                    campaign.imageFile,
-                                    fit: BoxFit.fitHeight,
-                                    // height: 360,
-                                    // width: 360,
-                                  ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(2.0),
-                                child: Text(
-                                  'Heading :',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: AutoSizeText(
-                                  parser.emojify('${campaign.heading}'),
-                                  maxLines: 3,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.all(2.0),
-                              child: Text(
-                                'Description :',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: AutoSizeText(
-                                parser.emojify('${campaign.desc}'),
-                                maxLines: 3,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-          // gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          //   maxCrossAxisExtent: 380.0,
-          //   crossAxisSpacing: 4.0,
-          //   mainAxisSpacing: 4.0,
-          //   mainAxisExtent: 490.0,
-          // ),
-        ),
-      );
 
   Future<dynamic> showCapturedWidget(
           BuildContext context, Uint8List capturedImage) =>
@@ -363,7 +283,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              _save.saveFile(capturedImage, 'filename.png');
+              _save.saveFile(capturedImage, '$articleName.png');
               Navigator.popUntil(context, (route) => route.isFirst);
               unawaited(Navigator.pushReplacement(context,
                   CupertinoPageRoute(builder: (_) => const AddCampaignPage())));
