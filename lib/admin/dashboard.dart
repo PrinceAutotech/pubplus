@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 import 'package:image_network/image_network.dart';
 import 'package:responsive_table/responsive_table.dart';
-import '../../service/save/save.dart';
 import '../view/add_campaign/add_campaign_page.dart';
+import '../view/startup/login_page.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -20,12 +20,11 @@ class Dashboard extends StatefulWidget {
 
 class _DataPageState extends State<Dashboard> {
   late List<DatatableHeader> _headers;
-  final Save _save = Save();
   final List<int> _perPages = [10, 20, 50, 100];
   int _total = 100;
   int? _currentPerPage = 10;
   List<bool>? _expanded;
-  String? _searchKey = 'title';
+  String? _searchKey = 'articleName';
 
   int _currentPage = 1;
   bool _isSearch = false;
@@ -42,6 +41,8 @@ class _DataPageState extends State<Dashboard> {
   User? currentUser = FirebaseAuth.instance.currentUser;
 
   List<Map<String, dynamic>>? fetchedData;
+  Map<dynamic, dynamic>? data;
+  List<Map<String, dynamic>> data1 = [];
 
   Future<List<Map<String, dynamic>>> _generateData() async {
     FirebaseDatabase database = FirebaseDatabase.instance;
@@ -51,9 +52,16 @@ class _DataPageState extends State<Dashboard> {
         .child('Campaign')
         .get();
     if (snapshot.exists) {
-      print(snapshot.value);
-      List map1 = snapshot.value as List;
-      fetchedData = List<Map<String, dynamic>>.from(map1.map((data) => data));
+      if (kDebugMode) {
+        print(snapshot.value);
+      }
+      Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+      values.forEach((key, values) {
+        data1.add(values);
+      });
+      List map = data1;
+      fetchedData = List<Map<String, dynamic>>.from(map.map((data) => data));
+      // fetchedData!.addAll(data1 as Iterable<Map<String, dynamic>>);
     } else {
       if (kDebugMode) {
         print('No data available.');
@@ -120,38 +128,80 @@ class _DataPageState extends State<Dashboard> {
 
   @override
   void initState() {
+
     super.initState();
 
     /// set headers
     _headers = [
       DatatableHeader(
-          text: 'Image',
-          value: 'imageFile',
-          show: true,
-          sortable: false,
-          flex: 1,
-          textAlign: TextAlign.center,
-          sourceBuilder: (value, row) => Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ImageNetwork(
-                  image: value,
-                  height: 180,
-                  width: 180,
-                  onTap: () async {
-                    await WebImageDownloader.downloadImageFromWeb(value,
-                        name: '${DateTime.now().microsecond}');
-                  },
+        text: 'Image',
+        value: 'imageFile',
+        show: true,
+        sortable: false,
+        flex: 1,
+        textAlign: TextAlign.center,
+        sourceBuilder: (value, row) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ImageNetwork(
+            image: value,
+            height: 180,
+            width: 180,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.close_outlined),
+                        iconSize: 20,
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ImageNetwork(
+                        image: value,
+                        height: 500,
+                        width: 500,
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    Center(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          await WebImageDownloader.downloadImageFromWeb(value,
+                              name: '${DateTime.now().microsecondsSinceEpoch}');
+                        },
+                        style: ButtonStyle(
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0))),
+                        ),
+                        child: const Text('Download'),
+                      ),
+                    ),
+                  ],
                 ),
-              )),
+              );
+            },
+          ),
+        ),
+      ),
       DatatableHeader(
           text: 'Title',
           value: 'title',
           show: true,
           sortable: false,
           flex: 2,
-          sourceBuilder: (value, row) => Padding(padding: const EdgeInsets.all(8),
-              child: SelectableText(value)
-          ),
+          sourceBuilder: (value, row) => Padding(
+              padding: const EdgeInsets.all(8), child: SelectableText(value)),
           editable: true,
           textAlign: TextAlign.left),
       DatatableHeader(
@@ -160,9 +210,8 @@ class _DataPageState extends State<Dashboard> {
           show: true,
           sortable: false,
           flex: 2,
-          sourceBuilder: (value, row) => Padding(padding: const EdgeInsets.all(5),
-              child: SelectableText(value)
-          ),
+          sourceBuilder: (value, row) => Padding(
+              padding: const EdgeInsets.all(5), child: SelectableText(value)),
           editable: true,
           textAlign: TextAlign.left),
       DatatableHeader(
@@ -172,9 +221,8 @@ class _DataPageState extends State<Dashboard> {
           sortable: false,
           flex: 2,
           editable: true,
-          sourceBuilder: (value, row) => Padding(padding: const EdgeInsets.all(5),
-              child: SelectableText(value)
-          ),
+          sourceBuilder: (value, row) => Padding(
+              padding: const EdgeInsets.all(5), child: SelectableText(value)),
           textAlign: TextAlign.left),
       DatatableHeader(
           text: 'Article Name',
@@ -182,9 +230,8 @@ class _DataPageState extends State<Dashboard> {
           show: true,
           sortable: false,
           editable: true,
-          sourceBuilder: (value, row) => Padding(padding: const EdgeInsets.all(5),
-              child: SelectableText(value)
-          ),
+          sourceBuilder: (value, row) => Padding(
+              padding: const EdgeInsets.all(5), child: SelectableText(value)),
           textAlign: TextAlign.left),
       DatatableHeader(
           text: 'Date',
@@ -197,9 +244,8 @@ class _DataPageState extends State<Dashboard> {
           text: 'ArticleLink',
           value: 'link',
           show: true,
-          sourceBuilder: (value, row) => Padding(padding: const EdgeInsets.all(8),
-              child: SelectableText(value)
-          ),
+          sourceBuilder: (value, row) => Padding(
+              padding: const EdgeInsets.all(8), child: SelectableText(value)),
           sortable: false,
           editable: true,
           textAlign: TextAlign.left),
@@ -237,7 +283,24 @@ class _DataPageState extends State<Dashboard> {
                       CupertinoPageRoute(
                           builder: (_) => const AddCampaignPage())));
                 },
-              )
+              ),
+              // ListTile(
+              //   leading: const Icon(Icons.logout),
+              //   title: const Text('Logout'),
+              //   onTap: () async {
+              //     await FirebaseAuth.instance.signOut().whenComplete(() => {
+              //           if (currentUser == null)
+              //             {
+              //               unawaited(Navigator.pushReplacement(
+              //                   context,
+              //                   CupertinoPageRoute(
+              //                       builder: (_) => const LoginPage())))
+              //             }
+              //           else
+              //             {}
+              //         });
+              //   },
+              // )
             ],
           ),
         ),

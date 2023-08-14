@@ -10,7 +10,7 @@ import 'realtime_database.dart';
 
 class StorageDatabase {
   Future<void> writeData(List<Campaign> campaigns, String currentUser,
-      String articleName, List<PostCampaign> postCampaign) async {
+      String articleName, List<PostCampaign> postCampaign, String articleLink) async {
     UploadTask uploadTask;
     final metaData = SettableMetadata(contentType: 'image/png');
     final storageRef = FirebaseStorage.instance.ref();
@@ -34,7 +34,7 @@ class StorageDatabase {
               title: campaigns[i].title,
               heading: campaigns[i].heading,
               desc: campaigns[i].desc,
-              link: campaigns[i].title,
+              link: articleLink,
               imageFile: downloadUrl));
         });
       });

@@ -1,3 +1,4 @@
+
 class GetCampaign {
   String? articleName;
   String? date;
@@ -28,6 +29,7 @@ class GetCampaign {
         articleLink: json['link'],
         title: json['title'],
       );
+
 
   @override
   String toString() =>

@@ -5,12 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../admin/dashboard.dart';
 
-import '../add_campaign/add_campaign_page.dart';
-
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
-
-  final String title;
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -18,9 +14,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController =
-      TextEditingController(text: '');
+      TextEditingController(text: 'admin@gmail.com');
   TextEditingController passwordController =
-      TextEditingController(text: '');
+      TextEditingController(text: 'admin@121');
 
   Future<void> _login() async {
     String email = emailController.text.trim();
@@ -54,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
+          title: const Text('Login'),
         ),
         body: Container(
           alignment: Alignment.center,

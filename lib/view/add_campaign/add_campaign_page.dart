@@ -48,10 +48,8 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                 leading: const Icon(Icons.home),
                 title: const Text('Home'),
                 onTap: () {
-                  unawaited(Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (_) => const Dashboard())));
+                  unawaited(Navigator.pushReplacement(context,
+                      CupertinoPageRoute(builder: (_) => const Dashboard())));
                 },
               ),
               ListTile(
@@ -225,11 +223,10 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                         ),
                         onPressed: () async {
                           _formKey.currentState?.save();
-                          var value =
-                              await _screenshotController.captureFromLongWidget(
+                          var value = await _screenshotController
+                              .captureFromLongWidget(
                             InheritedTheme.captureAll(
                               context,
-                              // Material(child: ImageCard(campaigns: _campaigns)),
                               Material(
                                 child: ImageCard(
                                   campaigns: _campaigns,
@@ -238,12 +235,14 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                             ),
                             delay: const Duration(milliseconds: 1000),
                             context: context,
-                          );
+                          ).whenComplete(() async {
+
+                          await StorageDatabase()
+                              .writeData(_campaigns, currentUser!.uid,
+                                  articleName, _postCampaign, articleLink);
+                          });
                           if (!mounted) return;
                           unawaited(showCapturedWidget(context, value));
-
-                          await StorageDatabase().writeData(_campaigns,
-                              currentUser!.uid, articleName, _postCampaign);
                         },
                         child: const Text('Download'),
                       ),
