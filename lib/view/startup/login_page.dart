@@ -18,6 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController =
       TextEditingController(text: '');
 
+  bool _showPassword = true;
+
   Future<void> _login() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
@@ -33,11 +35,10 @@ class _LoginPageState extends State<LoginPage> {
         if (userCredential.user != null) {
           if (!mounted) return;
           Navigator.popUntil(context, (route) => route.isFirst);
-          unawaited(Navigator.pushReplacement(context,
-              CupertinoPageRoute(builder: (_) => const Dashboard())));
+          unawaited(Navigator.pushReplacement(
+              context, CupertinoPageRoute(builder: (_) => const Dashboard())));
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Login successfully !!')));
-
         }
       } on FirebaseAuthException catch (ex) {
         ScaffoldMessenger.of(context)
@@ -69,7 +70,9 @@ class _LoginPageState extends State<LoginPage> {
                 child: TextField(
                   controller: emailController,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
                     hintText: 'Enter the Email',
                   ),
                 ),
@@ -77,11 +80,31 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 10),
               SizedBox(
                 width: 350,
+                height: 55,
                 child: TextField(
                   controller: passwordController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                  obscureText: _showPassword,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
                     hintText: 'Enter the Password',
+                    suffix: IconButton(
+                      icon: _showPassword
+                          ? const Icon(
+                              Icons.visibility_outlined,
+                              size: 20,
+                            )
+                          : const Icon(
+                              Icons.visibility_off_outlined,
+                              size: 20,
+                            ),
+                      onPressed: () {
+                        setState(() {
+                          _showPassword = !_showPassword;
+                        });
+                      },
+                    ),
                   ),
                 ),
               ),

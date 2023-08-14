@@ -31,9 +31,6 @@ class RealtimeDatabase {
     final snapshot =
         await database.ref('Users').child(currentUser).child('Campaign').get();
 
-    // for (var i = 0; i < GetCampaign.length; i++) {
-    //
-    // }
     if (snapshot.exists) {
       if (kDebugMode) {
         print(snapshot.value);

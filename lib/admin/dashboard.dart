@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
 import 'package:image_network/image_network.dart';
 import 'package:responsive_table/responsive_table.dart';
+import '../../service/save/save.dart';
 import '../view/add_campaign/add_campaign_page.dart';
 import '../view/startup/login_page.dart';
 
@@ -25,7 +27,7 @@ class _DataPageState extends State<Dashboard> {
   int? _currentPerPage = 10;
   List<bool>? _expanded;
   String? _searchKey = 'articleName';
-
+  final Save _save = Save();
   int _currentPage = 1;
   bool _isSearch = false;
   final List<Map<String, dynamic>> _sourceOriginal = [];
@@ -128,7 +130,6 @@ class _DataPageState extends State<Dashboard> {
 
   @override
   void initState() {
-
     super.initState();
 
     /// set headers
@@ -175,9 +176,11 @@ class _DataPageState extends State<Dashboard> {
                   actions: <Widget>[
                     Center(
                       child: OutlinedButton(
-                        onPressed: () async {
-                          await WebImageDownloader.downloadImageFromWeb(value,
-                              name: '${DateTime.now().microsecondsSinceEpoch}');
+                        onPressed: () {
+                          List<int> list = utf8.encode(value);
+                          Uint8List bytes = Uint8List.fromList(list);
+                          _save.saveFile(bytes,
+                              '${DateTime.now().microsecondsSinceEpoch}.png');
                         },
                         style: ButtonStyle(
                           shape: MaterialStateProperty.all(
