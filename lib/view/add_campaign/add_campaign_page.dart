@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../admin/dashboard.dart';
 import '../../database/storage_database.dart';
 import '../../model/campaign.dart';
 import '../../model/post_campaign.dart';
 import '../../service/save/save.dart';
+import '../startup/login_page.dart';
 import 'image_card.dart';
 
 class AddCampaignPage extends StatefulWidget {
@@ -29,11 +31,12 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
   TextEditingController articleNameController = TextEditingController();
   final ScreenshotController _screenshotController = ScreenshotController();
   final List<Campaign> _campaigns = [];
-  final List<PostCampaign> _postCampaign = [];
+  late final List<PostCampaign> _postCampaign = [];
   final Save _save = Save();
   User? currentUser = FirebaseAuth.instance.currentUser;
   String articleLink = 'nbn';
   String articleName = 'jk';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -60,6 +63,23 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                       context,
                       CupertinoPageRoute(
                           builder: (_) => const AddCampaignPage())));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: () async {
+                  await _auth.signOut();
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool('auth', false);
+                  if (!mounted) return;
+                  unawaited(
+                    Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(builder: (_) => const LoginPage()),
+                    ),
+                  );
                 },
               )
             ],
@@ -235,11 +255,15 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                             ),
                             delay: const Duration(milliseconds: 1000),
                             context: context,
-                          ).whenComplete(() async {
-
-                          await StorageDatabase()
-                              .writeData(_campaigns, currentUser!.uid,
-                                  articleName, _postCampaign, articleLink);
+                          )
+                              .whenComplete(() async {
+                            await StorageDatabase()
+                                .writeData(_campaigns, currentUser!.uid,
+                                    articleName, _postCampaign, articleLink)
+                                .whenComplete(() {
+                              _postCampaign.clear();
+                              _campaigns.clear();
+                            });
                           });
                           if (!mounted) return;
                           unawaited(showCapturedWidget(context, value));

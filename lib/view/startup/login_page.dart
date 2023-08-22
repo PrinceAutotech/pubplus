@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../admin/dashboard.dart';
+import '../../admin/viewer_dashboard.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,15 +17,32 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  Future getUserInfo() async {
+    await getUser();
+    setState(() {});
+    if (kDebugMode) {
+      print(uid);
+    }
+  }
+
+  @override
+  void initState() {
+    getUserInfo();
+    super.initState();
+  }
+
   TextEditingController emailController =
       TextEditingController(text: '');
   TextEditingController passwordController =
       TextEditingController(text: '');
 
   bool _showPassword = true;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? email;
+  String? uid;
 
   Future<void> _login() async {
-    String email = emailController.text.trim();
+    email = emailController.text.trim();
     String password = passwordController.text.trim();
 
     if (email == '' || password == '') {
@@ -31,14 +52,26 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       try {
         UserCredential userCredential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
+            .signInWithEmailAndPassword(email: email!, password: password);
         if (userCredential.user != null) {
-          if (!mounted) return;
-          Navigator.popUntil(context, (route) => route.isFirst);
-          unawaited(Navigator.pushReplacement(
-              context, CupertinoPageRoute(builder: (_) => const Dashboard())));
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Login successfully !!')));
+          if (userCredential.user?.email == 'viewer@gmail.com') {
+            if (!mounted) return;
+            Navigator.popUntil(context, (route) => route.isFirst);
+            unawaited(Navigator.pushReplacement(context,
+                CupertinoPageRoute(builder: (_) => const ViewerDashboard())));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Login successfully !!')));
+          } else {
+            if (!mounted) return;
+            Navigator.popUntil(context, (route) => route.isFirst);
+            unawaited(Navigator.pushReplacement(context,
+                CupertinoPageRoute(builder: (_) => const Dashboard())));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Login successfully !!')));
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('auth', true);
+            await prefs.setString('email', userCredential.user!.email!);
+          }
         }
       } on FirebaseAuthException catch (ex) {
         ScaffoldMessenger.of(context)
@@ -125,4 +158,21 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       );
+
+  Future getUser() async {
+    // Initialize Firebase
+    await Firebase.initializeApp();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool authSignedIn = prefs.getBool('auth') ?? false;
+
+    final User? user = _auth.currentUser;
+
+    if (authSignedIn == true) {
+      if (user != null) {
+        uid = user.uid;
+        email = user.email;
+      }
+    }
+  }
 }

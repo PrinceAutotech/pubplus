@@ -20,6 +20,7 @@ class RealtimeDatabase {
         'heading': postCampaign[i].heading,
         'desc': postCampaign[i].desc,
         'imageFile': postCampaign[i].imageFile,
+        'feedback': postCampaign[i].feedback,
       });
     }
   }

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'auth_service.dart';
 import 'firebase_options.dart';
 import 'view/startup/login_page.dart';
 
@@ -22,6 +23,6 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        home: const LoginPage(),
+        home: AuthService().handleAuth(),
       );
 }

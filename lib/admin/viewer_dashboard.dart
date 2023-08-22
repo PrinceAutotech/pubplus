@@ -7,25 +7,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_table/responsive_table.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../view/add_campaign/add_campaign_page.dart';
-import '../view/alert_box/alert_box.dart';
+import 'package:toggle_switch/toggle_switch.dart';
+
+import '../view/alert_box/view_alert_box.dart';
 import '../view/startup/login_page.dart';
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+class ViewerDashboard extends StatefulWidget {
+  const ViewerDashboard({super.key});
 
   @override
-  State<Dashboard> createState() => _DataPageState();
+  State<ViewerDashboard> createState() => _DataPageState();
 }
 
-class _DataPageState extends State<Dashboard> {
+class _DataPageState extends State<ViewerDashboard> {
   late List<DatatableHeader> _headers;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final List<int> _perPages = [10, 20, 50, 100];
   int _total = 100;
   int? _currentPerPage = 10;
   List<bool>? _expanded;
   String? _searchKey = 'articleName';
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   int _currentPage = 1;
   bool _isSearch = false;
   final List<Map<String, dynamic>> _sourceOriginal = [];
@@ -37,31 +39,37 @@ class _DataPageState extends State<Dashboard> {
   bool _sortAscending = true;
   bool _isLoading = true;
   final bool _showSelect = true;
+  bool vertical = false;
 
   User? currentUser = FirebaseAuth.instance.currentUser;
-    final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<Map<String, dynamic>>? fetchedData;
   Map<dynamic, dynamic>? data;
   List<Map<String, dynamic>> data1 = [];
+  List<Map<String, dynamic>> data2 = [];
 
   Future<List<Map<String, dynamic>>> _generateData() async {
     FirebaseDatabase database = FirebaseDatabase.instance;
-    final snapshot = await database
-        .ref('Users')
-        .child(currentUser!.uid)
-        .child('Campaign')
-        .get();
+    final snapshot = await database.ref('Users').get();
     if (snapshot.exists) {
-      if (kDebugMode) {
-        print(snapshot.value);
-      }
       Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
       values.forEach((key, values) {
-        data1.add(values);
+        Map<dynamic, dynamic> values1 = values;
+        values1.forEach((key, value) {
+          Map<dynamic, dynamic> values2 = value;
+          values2.forEach((key, value) {
+            data1.add(value);
+          });
+        });
       });
+
+      if (kDebugMode) {
+        print(data1);
+      }
       List map = data1;
+
       fetchedData = List<Map<String, dynamic>>.from(map.map((data) => data));
+      // fetchedData!.addAll(data1 as Iterable<Map<String, dynamic>>);
     } else {
       if (kDebugMode) {
         print('No data available.');
@@ -141,7 +149,7 @@ class _DataPageState extends State<Dashboard> {
         textAlign: TextAlign.center,
         sourceBuilder: (value, row) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child: AlertBox(
+          child: ViewAlertBox(
             imageUri: value,
           ),
         ),
@@ -202,14 +210,43 @@ class _DataPageState extends State<Dashboard> {
           editable: true,
           textAlign: TextAlign.left),
       DatatableHeader(
-          text: 'FeedBack',
-          value: 'feedback',
-          show: true,
-          sourceBuilder: (value, row) => Padding(
-              padding: const EdgeInsets.all(8), child: SelectableText(value)),
-          sortable: false,
-          editable: true,
-          textAlign: TextAlign.left),
+        text: 'FeedBack',
+        value: 'feedback',
+        show: true,
+        sourceBuilder: (value, row) => Column(
+          children: [
+            ToggleSwitch(
+              minWidth: 80.0,
+              minHeight: 40.0,
+              initialLabelIndex: 0,
+              cornerRadius: 10.0,
+              customTextStyles: const [
+                TextStyle(fontSize: 11.0, fontWeight: FontWeight.w700),
+              ],
+              activeFgColor: Colors.white,
+              inactiveBgColor: Colors.grey,
+              inactiveFgColor: Colors.white,
+              totalSwitches: 2,
+              multiLineText: true,
+              centerText: true,
+              labels: const ['DisApprove', 'Approve'],
+              activeBgColors: const [
+                [Colors.red],
+                [Colors.green]
+              ],
+              animate: true,
+              curve: Curves.bounceInOut,
+              onToggle: (index) {
+                if (index == 1) {
+                } else {}
+              },
+            ),
+          ],
+        ),
+        sortable: false,
+        editable: false,
+        textAlign: TextAlign.center,
+      ),
     ];
     _initializeData(true);
   }
@@ -222,46 +259,27 @@ class _DataPageState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('DATA TABLE'),
-        ),
-        drawer: Drawer(
-          child: ListView(
+          title: Row(
             children: [
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  unawaited(Navigator.pushReplacement(context,
-                      CupertinoPageRoute(builder: (_) => const Dashboard())));
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.storage),
-                title: const Text('Add Campaigns'),
-                onTap: () {
-                  unawaited(Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (_) => const AddCampaignPage())));
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () async {
+              const Text('DATA TABLE'),
+              ElevatedButton(
+                onPressed: () async {
                   await _auth.signOut();
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   await prefs.setBool('auth', false);
                   if (!mounted) return;
-                  unawaited(
-                    Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(builder: (_) => const LoginPage()),
-                    ),
-                  );
+                  unawaited(Navigator.pushReplacement(
+                    context,
+                    CupertinoPageRoute(builder: (_) => const LoginPage()),
+                  ));
                 },
-              )
+                style: ElevatedButton.styleFrom(
+                  elevation: 8.0,
+                  textStyle: const TextStyle(color: Colors.white),
+                ),
+                child: const Text('Sign In'),
+              ),
             ],
           ),
         ),
@@ -281,16 +299,6 @@ class _DataPageState extends State<Dashboard> {
                   shadowColor: Colors.black,
                   clipBehavior: Clip.none,
                   child: ResponsiveDatatable(
-                    title: TextButton.icon(
-                      onPressed: () => {
-                        unawaited(Navigator.pushReplacement(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (_) => const AddCampaignPage())))
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text('New Campaign'),
-                    ),
                     reponseScreenSizes: const [ScreenSize.xs],
                     actions: [
                       if (_isSearch)
@@ -340,9 +348,7 @@ class _DataPageState extends State<Dashboard> {
                       /// print(value);
                       /// print(header);
                     },
-                    onTabRow: (data) {
-                      //print(data);
-                    },
+
                     onSort: (value) {
                       setState(() => _isLoading = true);
                       setState(() {

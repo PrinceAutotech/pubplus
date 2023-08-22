@@ -9,8 +9,12 @@ import '../model/post_campaign.dart';
 import 'realtime_database.dart';
 
 class StorageDatabase {
-  Future<void> writeData(List<Campaign> campaigns, String currentUser,
-      String articleName, List<PostCampaign> postCampaign, String articleLink) async {
+  Future<void> writeData(
+      List<Campaign> campaigns,
+      String currentUser,
+      String articleName,
+      List<PostCampaign> postCampaign,
+      String articleLink) async {
     UploadTask uploadTask;
     final metaData = SettableMetadata(contentType: 'image/png');
     final storageRef = FirebaseStorage.instance.ref();
@@ -29,13 +33,16 @@ class StorageDatabase {
           if (kDebugMode) {
             print('URL : $downloadUrl');
           }
-          postCampaign.add(PostCampaign(
-              date: DateFormat('dd-MM-yyyy').format(DateTime.now()).toString(),
-              title: campaigns[i].title,
-              heading: campaigns[i].heading,
-              desc: campaigns[i].desc,
-              link: articleLink,
-              imageFile: downloadUrl));
+          postCampaign.add(
+            PostCampaign(
+                date: DateFormat('dd-MM-yyyy').format(DateTime.now()).toString(),
+                title: campaigns[i].title,
+                heading: campaigns[i].heading,
+                desc: campaigns[i].desc,
+                link: articleLink,
+                imageFile: downloadUrl,
+                feedback: 'false'),
+          );
         });
       });
     }

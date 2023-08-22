@@ -1,4 +1,3 @@
-
 class PostCampaign {
   String? articleName;
   String? date;
@@ -7,16 +6,17 @@ class PostCampaign {
   String? heading;
   String? desc;
   String? imageFile;
+  String feedback = 'DisApprove';
 
-  PostCampaign({
-    this.articleName,
-    this.date,
-    this.link,
-    this.title,
-    this.heading,
-    this.desc,
-    this.imageFile,
-  });
+  PostCampaign(
+      {this.articleName,
+      this.date,
+      this.link,
+      this.title,
+      this.heading,
+      this.desc,
+      this.imageFile,
+      required this.feedback});
 
   @override
   String toString() =>
